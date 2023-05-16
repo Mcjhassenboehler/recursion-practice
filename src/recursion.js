@@ -33,7 +33,15 @@ var sum = function(array) {
 // 3. Sum all numbers in an array containing nested arrays.
 // Example: arraySum([1,[2,3],[[4]],5]); // 15
 var arraySum = function(array) {
-
+  if (!Array.isArray(array)){
+    return array
+  }
+  const first = array[0];
+  if (array.length > 1){
+    return arraySum(first) + arraySum(array.slice(1));
+  } else {
+    return arraySum(first);
+  }
 };
 
 // 4. Check if a number is even.
@@ -54,20 +62,20 @@ var isEven = function(n) {
 // sumBelow(10); // 45
 // sumBelow(7); // 21
 var sumBelow = function(n) {
-  if (n < 0) {
-    n = Math.abs(n)
-    return factorial(n - 1) + n
-  } else if (n === 1){
-    return 1
-  } else {
-    return sumBelow (n - 1) + n
-  }
+  let arrayButt = [];
+  const step = n > 0 ? -1 : 1;
+  // if()
 };
 
 // 6. Get the integers in range (x, y).
 // Example:  range(2, 9);  // [3, 4, 5, 6, 7, 8]
 var range = function(x, y) {
-};
+  let result = []
+  const step = x > y ? -1 : 1; // this determines if your range goes up or down
+    if(x === y) return [];
+    if(x === y - step) return result;
+    return result.concat(x + step, range(x + step, y));
+}
 
 // 7. Compute the exponent of a number.
 // The exponent of a number says how many times the base number is used as a factor.
