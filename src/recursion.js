@@ -138,15 +138,19 @@ var reverse = function(string) {
 };
 
 // 10. Write a function that determines if a string is a palindrome.
-var palindrome = function(string, reversed='') {
-  if (reversed.toLowerCase() === string.toLowerCase()){
-    return true
-  } else if (reversed.toLowerCase() !== string.toLowerCase() && reversed !== ""){
-    return false
-  } else if (reversed === ''){
-  reversed = reverse(string);
-  return palindrome(string, reversed)
+var palindrome = function(str) {
+  const alphanumericStr = str.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+  
+  // Base case: If the string is empty or has only one character, it is a palindrome
+  if (alphanumericStr.length <= 1) {
+    return true;
   }
+  // Recursive case: Check if the first and last characters are equal
+  if (alphanumericStr[0] === alphanumericStr[alphanumericStr.length - 1]) {
+    // Recursively check the substring without the first and last characters
+    return palindrome(alphanumericStr.slice(1, alphanumericStr.length - 1));
+  }
+  return false;
 };
 console.log(palindrome)
 
@@ -271,8 +275,15 @@ var countOccurrence = function(array, value, count=0) {
 
 // 20. Write a recursive version of map.
 // rMap([1,2,3], timesTwo); // [2,4,6]
-var rMap = function(array, callback, output=[]) {
+var rMap = function(array, callback) {
+  if (array.length === 0) {
+    return [];
+  }
+  const [first, ...rest] = array;
+  const mappedValue = callback(first);
+  const mappedRest = rMap(rest, callback);
   
+  return [mappedValue, ...mappedRest];
 };
 
 // 21. Write a function that counts the number of times a key occurs in an object.
@@ -280,6 +291,18 @@ var rMap = function(array, callback, output=[]) {
 // countKeysInObj(testobj, 'r') // 1
 // countKeysInObj(testobj, 'e') // 2
 var countKeysInObj = function(obj, key) {
+  let count = 0;
+    for (const prop in obj) {
+      if (obj.hasOwnProperty(prop)) {
+        if (prop === key) {
+          count++;
+        }
+        if (typeof obj[prop] === 'object') {
+          count += countKeyOccurrences(obj[prop], key);
+        }
+      }
+    }
+  return count;
 };
 
 // 22. Write a function that counts the number of times a value occurs in an object.
@@ -308,17 +331,39 @@ var fibonacci = function(n) {
 // nthFibo(7); // 13
 // nthFibo(3); // 2
 var nthFibo = function(n) {
+  if (n === 0){
+    return 0
+  } else if (n === 1){
+    return 1
+  } else if (n < 0){
+    return null
+  }
+  return nthFibo(n - 1) + nthFibo(n - 2)
 };
 
 // 26. Given an array of words, return a new array containing each word capitalized.
 // var words = ['i', 'am', 'learning', 'recursion'];
 // capitalizedWords(words); // ['I', 'AM', 'LEARNING', 'RECURSION']
-var capitalizeWords = function(input) {
+var capitalizeWords = function(array, result=[]) {
+  if (!array.length){
+    return result
+  }
+  result.push(array[0].toUpperCase());
+  return capitalizeWords(array.slice(1), result);
 };
 
 // 27. Given an array of strings, capitalize the first letter of each index.
 // capitalizeFirst(['car', 'poop', 'banana']); // ['Car', 'Poop', 'Banana']
-var capitalizeFirst = function(array) {
+var capitalizeFirst = function(array, result=[]) {
+  if (!array.length){
+    return result
+  }
+  const firstLetter = array[0].charAt(0)
+  const firstLetterCap = firstLetter.toUpperCase()
+  const remainingLetters = array[0].slice(1)
+  const capitalizedWord = firstLetterCap + remainingLetters
+  result.push(capitalizedWord);
+  return capitalizeFirst(array.slice(1), result);
 };
 
 // 28. Return the sum of all even numbers in an object containing nested objects.
@@ -331,6 +376,7 @@ var capitalizeFirst = function(array) {
 // };
 // nestedEvenSum(obj1); // 10
 var nestedEvenSum = function(obj) {
+
 };
 
 // 29. Flatten an array containing nested arrays.
@@ -340,7 +386,23 @@ var flatten = function(arrays) {
 
 // 30. Given a string, return an object containing tallies of each letter.
 // letterTally('potato'); // {'p':1, 'o':2, 't':2, 'a':1}
-var letterTally = function(str, obj) {
+var letterTally = function(str) {
+  // Base case: if the string is empty, return an empty object
+  if (str.length === 0) {
+    return {};
+  }
+
+  // Recursive case: process the first character of the string
+  const firstChar = str[0];
+  const remainingStr = str.slice(1);
+  
+  // Recursive call to process the remaining string
+  const tallies = letterTally(remainingStr);
+  
+  // Increment the tally for the current character
+  tallies[firstChar] = tallies[firstChar] ? tallies[firstChar] + 1 : 1;
+  
+  return tallies;
 };
 
 // 31. Eliminate consecutive duplicates in a list.  If the list contains repeated
@@ -348,32 +410,122 @@ var letterTally = function(str, obj) {
 // elements should not be changed.
 // Example: compress([1, 2, 2, 3, 4, 4, 5, 5, 5]) // [1, 2, 3, 4, 5]
 // Example: compress([1, 2, 2, 3, 4, 4, 2, 5, 5, 5, 4, 4]) // [1, 2, 3, 4, 2, 5, 4]
-var compress = function(list) {
+var compress = function(list, arr=[]) {
+  if (!list.length){
+    return arr
+  }
+  if (arr === []){
+    arr.push(list[0])
+    return compress(list.slice(1), arr)
+  }
+  if (arr[arr.length - 1] === list[0]){
+    return compress(list.slice(1), arr)
+  } else {
+    arr.push(list[0])
+    return compress(list.slice(1), arr)
+  }
 };
 
 // 32. Augment every element in a list with a new value where each element is an array
 // itself.
 // Example: augmentElements([[],[3],[7]], 5); // [[5],[3,5],[7,5]]
-var augmentElements = function(array, aug) {
+var augmentElements = function(array, aug, arr=[]) {
+  if (!array.length){
+    return arr
+  }
+  if (Array.isArray(array[0])){
+    array[0].push(aug);
+  }
+  arr.push(array)
+  return augmentElements(array.slice(1), aug, arr)
 };
 
 // 33. Reduce a series of zeroes to a single 0.
 // minimizeZeroes([2,0,0,0,1,4]) // [2,0,1,4]
 // minimizeZeroes([2,0,0,0,1,0,0,4]) // [2,0,1,0,4]
-var minimizeZeroes = function(array) {
+var minimizeZeroes = function(array, arr=[]) {
+  if (!array.length){
+    return arr
+  }
+  if (arr === []){
+    arr.push(array[0])
+    return minimizeZeroes(array.slice(1), arr)
+  }
+  if (arr[arr.length - 1] === array[0]){
+    return minimizeZeroes(array.slice(1), arr)
+  } else {
+    arr.push(array[0])
+    return minimizeZeroes(array.slice(1), arr)
+  }
 };
 
 // 34. Alternate the numbers in an array between positive and negative regardless of
 // their original sign.  The first number in the index always needs to be positive.
 // alternateSign([2,7,8,3,1,4]) // [2,-7,8,-3,1,-4]
 // alternateSign([-2,-7,8,3,-1,4]) // [2,-7,8,-3,1,-4]
-var alternateSign = function(array) {
+var alternateSign = function(array, arr=[]) {
+  if (!array.length){
+    return arr
+  } 
+  let beef = array[0] * -1 
+  if (array[0] > 0 && arr.length === 0){
+    arr.push(array[0])
+    return alternateSign(array.slice(1), arr)
+  } else if (array[0] < 0 && arr.length === 0){
+    arr.push(beef)
+    return alternateSign(array.slice(1), arr)
+  } else if (arr.length % 2 !== 0 && array[0] > 0){
+    arr.push(beef)
+    return alternateSign(array.slice(1), arr)
+  } else if (arr.length % 2 === 0 && array[0] < 0){
+    let beef = array[0] * -1 
+    arr.push(beef)
+    return alternateSign(array.slice(1), arr)
+  } else if (arr.length % 2 === 0){
+    arr.push(array[0])
+    return alternateSign(array.slice(1), arr)
+  } else if (arr.length % 2 !== 0){
+    arr.push(array[0])
+    return alternateSign(array.slice(1), arr)
+  }
 };
 
 // 35. Given a string, return a string with digits converted to their word equivalent.
 // Assume all numbers are single digits (less than 10).
 // numToText("I have 5 dogs and 6 ponies"); // "I have five dogs and six ponies"
 var numToText = function(str) {
+  if (str.length === 0) {
+    return '';
+  }
+  // Recursive case: process the first character of the string
+  const firstChar = str[0];
+  const remainingStr = str.slice(1);
+
+  // Check if the first character is a digit
+  switch (firstChar) {
+    case '0':
+      return 'zero' + numToText(remainingStr);
+    case '1':
+      return 'one' + numToText(remainingStr);
+    case '2':
+      return 'two' + numToText(remainingStr);
+    case '3':
+      return 'three' + numToText(remainingStr);
+    case '4':
+      return 'four' + numToText(remainingStr);
+    case '5':
+      return 'five' + numToText(remainingStr);
+    case '6':
+      return 'six' + numToText(remainingStr);
+    case '7':
+      return 'seven' + numToText(remainingStr);
+    case '8':
+      return 'eight' + numToText(remainingStr);
+    case '9':
+      return 'nine' + numToText(remainingStr);
+    default:
+      return firstChar + numToText(remainingStr);
+  }
 };
 
 // *** EXTRA CREDIT ***
