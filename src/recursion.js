@@ -109,8 +109,7 @@ var exponent = function(base, exp, sum=1) {
     sum = sum * base
   return exponent(base, exp - 1, sum)
 } else if (exp < 0){
-  sum = sum * base * 0.1
-  return exponent(base, exp + 1, sum)
+  return sum / exponent(base, -exp);
 }
 };
 
